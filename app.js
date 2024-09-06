@@ -9,55 +9,49 @@ const compScorePara = document.querySelector("#comp-score");
 
 const genCompChoice = () => {
   const options = ["rock", "paper", "scissors"];
-  const randIdx = Math.floor(Math.random() * 3);
-  return options[randIdx];
+  return options[Math.floor(Math.random() * options.length)];
 };
 
-const drawGame = () => {
-  msg.innerText = "Game was Draw. Play again.";
-  msg.style.backgroundColor = "#081b31";
-};
-
-const showWinner = (userWin, userChoice, compChoice) => {
-  if (userWin) {
+const updateScore = (winner) => {
+  if (winner === "user") {
     userScore++;
-    userScorePara.innerText = userScore;
-    msg.innerText = `You win! Your ${userChoice} beats ${compChoice}`;
-    msg.style.backgroundColor = "green";
-  } else {
+    userScorePara.textContent = userScore;
+  } else if (winner === "comp") {
     compScore++;
-    compScorePara.innerText = compScore;
-    msg.innerText = `You lost. ${compChoice} beats your ${userChoice}`;
-    msg.style.backgroundColor = "red";
+    compScorePara.textContent = compScore;
   }
 };
 
-const playGame = (userChoice) => {
-  //Generate computer choice
-  const compChoice = genCompChoice();
+const setMessage = (text, bgColor) => {
+  msg.textContent = text;
+  msg.style.backgroundColor = bgColor;
+};
+
+const determineWinner = (userChoice, compChoice) => {
+  const winConditions = {
+    rock: "scissors",
+    paper: "rock",
+    scissors: "paper"
+  };
 
   if (userChoice === compChoice) {
-    //Draw Game
-    drawGame();
+    setMessage("It's a draw! Play again.", "#081b31");
+    return;
+  }
+
+  if (winConditions[userChoice] === compChoice) {
+    updateScore("user");
+    setMessage(`You win! ${userChoice} beats ${compChoice}`, "green");
   } else {
-    let userWin = true;
-    if (userChoice === "rock") {
-      //scissors, paper
-      userWin = compChoice === "paper" ? false : true;
-    } else if (userChoice === "paper") {
-      //rock, scissors
-      userWin = compChoice === "scissors" ? false : true;
-    } else {
-      //rock, paper
-      userWin = compChoice === "rock" ? false : true;
-    }
-    showWinner(userWin, userChoice, compChoice);
+    updateScore("comp");
+    setMessage(`You lost! ${compChoice} beats ${userChoice}`, "red");
   }
 };
 
 choices.forEach((choice) => {
   choice.addEventListener("click", () => {
-    const userChoice = choice.getAttribute("id");
-    playGame(userChoice);
+    const userChoice = choice.id;
+    const compChoice = genCompChoice();
+    determineWinner(userChoice, compChoice);
   });
 });
